@@ -1,0 +1,1581 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+
+const API_BASE = "http://localhost:8080/api";
+
+const DEFAULT_PASSWORD = "student123";
+
+const emptyStudent = {
+  admissionNo: "",
+  rollNo: "",
+  firstName: "",
+  lastName: "",
+  fullName: "",
+  gender: "Male",
+  dateOfBirth: "",
+  bloodGroup: "",
+  aadhaarNumber: "",
+  studentPhoto: "",
+  password: DEFAULT_PASSWORD,
+
+  classId: "",
+  admissionDate: "",
+  academicYear: "2026-2027",
+
+  fatherName: "",
+  motherName: "",
+  guardianName: "",
+  parentMobile: "",
+  alternateMobile: "",
+  parentEmail: "",
+  occupation: "",
+  annualIncome: "",
+
+  addressLine1: "",
+  addressLine2: "",
+  village: "",
+  mandal: "",
+  district: "",
+  state: "",
+  country: "India",
+  pincode: "",
+
+  busRequired: false,
+  busRoute: "",
+  pickupPoint: "",
+
+  feeCategory: "Monthly",
+  totalFee: 0,
+  paidFee: 0,
+  pendingFee: 0,
+  scholarship: 0,
+
+  hostelRequired: false,
+  medicalCondition: "",
+  allergies: "",
+
+  emergencyContactName: "",
+  emergencyContactNumber: "",
+
+  previousSchool: "",
+  tcNumber: "",
+
+  remarks: "",
+  status: "ACTIVE",
+};
+
+function Students() {
+  const [searchParams] = useSearchParams();
+
+  const urlClassId = searchParams.get("classId");
+
+  const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState(urlClassId || "ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
+  const [form, setForm] = useState(emptyStudent);
+
+  // =========================================================
+  // LOAD DATA
+  // =========================================================
+
+  useEffect(() => {
+    loadStudents();
+    loadClasses();
+  }, []);
+
+  const loadStudents = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(`${API_BASE}/students`);
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Student API error:", err);
+
+      setError(
+        "Unable to load students. Please make sure the Spring Boot backend is running on port 8080."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadClasses = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/classes`);
+
+      if (!response.ok) {
+        throw new Error(`Class API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setClasses(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Class API error:", err);
+    }
+  };
+
+  // =========================================================
+  // CLASS NAME
+  // =========================================================
+
+  const getClassName = (classId) => {
+    if (!classId) {
+      return "-";
+    }
+
+    const schoolClass = classes.find(
+      (item) => String(item.id) === String(classId)
+    );
+
+    return schoolClass
+      ? schoolClass.className
+      : `Class ${classId}`;
+  };
+
+  // =========================================================
+  // FILTER STUDENTS
+  // =========================================================
+
+  const filteredStudents = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    return students.filter((student) => {
+      const matchesSearch =
+        !searchText ||
+        (student.fullName || "")
+          .toLowerCase()
+          .includes(searchText) ||
+        (student.firstName || "")
+          .toLowerCase()
+          .includes(searchText) ||
+        (student.lastName || "")
+          .toLowerCase()
+          .includes(searchText) ||
+        (student.admissionNo || "")
+          .toLowerCase()
+          .includes(searchText) ||
+        String(student.rollNo || "")
+          .toLowerCase()
+          .includes(searchText);
+
+      const matchesClass =
+        classFilter === "ALL" ||
+        String(student.classId) === String(classFilter);
+
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        student.status === statusFilter;
+
+      return matchesSearch && matchesClass && matchesStatus;
+    });
+  }, [students, search, classFilter, statusFilter]);
+
+  // =========================================================
+  // FORM HANDLERS
+  // =========================================================
+
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const openAddModal = () => {
+    setEditingId(null);
+
+    setForm({
+      ...emptyStudent,
+      password: DEFAULT_PASSWORD,
+      academicYear: "2026-2027",
+      admissionDate: new Date().toISOString().split("T")[0],
+    });
+
+    setError("");
+    setSuccess("");
+    setShowModal(true);
+  };
+
+  const openEditModal = (student) => {
+    setEditingId(student.id);
+
+    setForm({
+      ...emptyStudent,
+      ...student,
+
+      classId: student.classId || "",
+      dateOfBirth: student.dateOfBirth
+        ? student.dateOfBirth.substring(0, 10)
+        : "",
+
+      admissionDate: student.admissionDate
+        ? student.admissionDate.substring(0, 10)
+        : "",
+
+      password: student.password || DEFAULT_PASSWORD,
+    });
+
+    setError("");
+    setSuccess("");
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    if (saving) {
+      return;
+    }
+
+    setShowModal(false);
+    setEditingId(null);
+    setForm(emptyStudent);
+  };
+
+  // =========================================================
+  // SAVE STUDENT
+  // =========================================================
+
+  const saveStudent = async (event) => {
+    event.preventDefault();
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      if (!form.admissionNo.trim()) {
+        throw new Error("Admission number is required.");
+      }
+
+      if (!form.firstName.trim()) {
+        throw new Error("First name is required.");
+      }
+
+      if (!form.fullName.trim()) {
+        throw new Error("Full name is required.");
+      }
+
+      if (!form.classId) {
+        throw new Error("Please select a class.");
+      }
+
+      if (!form.dateOfBirth) {
+        throw new Error("Date of birth is required.");
+      }
+
+      if (!form.admissionDate) {
+        throw new Error("Admission date is required.");
+      }
+
+      if (!form.fatherName.trim()) {
+        throw new Error("Father name is required.");
+      }
+
+      if (!form.parentMobile.trim()) {
+        throw new Error("Parent mobile number is required.");
+      }
+
+      const payload = {
+        ...form,
+
+        password: DEFAULT_PASSWORD,
+
+        classId: Number(form.classId),
+
+        annualIncome:
+          form.annualIncome === ""
+            ? null
+            : Number(form.annualIncome),
+
+        totalFee:
+          form.totalFee === ""
+            ? 0
+            : Number(form.totalFee),
+
+        paidFee:
+          form.paidFee === ""
+            ? 0
+            : Number(form.paidFee),
+
+        pendingFee:
+          form.pendingFee === ""
+            ? 0
+            : Number(form.pendingFee),
+
+        scholarship:
+          form.scholarship === ""
+            ? 0
+            : Number(form.scholarship),
+
+        busRequired: Boolean(form.busRequired),
+        hostelRequired: Boolean(form.hostelRequired),
+      };
+
+      const url = editingId
+        ? `${API_BASE}/students/${editingId}`
+        : `${API_BASE}/students`;
+
+      const method = editingId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error(
+            "Admission number already exists."
+          );
+        }
+
+        const text = await response.text();
+
+        throw new Error(
+          text || `Server returned ${response.status}`
+        );
+      }
+
+      const savedStudent = await response.json();
+
+      if (editingId) {
+        setStudents((previous) =>
+          previous.map((student) =>
+            student.id === editingId
+              ? savedStudent
+              : student
+          )
+        );
+
+        setSuccess("Student updated successfully.");
+      } else {
+        setStudents((previous) => [
+          ...previous,
+          savedStudent,
+        ]);
+
+        setSuccess(
+          `Student added successfully. Login: ${savedStudent.admissionNo} / ${DEFAULT_PASSWORD}`
+        );
+      }
+
+      setShowModal(false);
+      setEditingId(null);
+      setForm(emptyStudent);
+
+    } catch (err) {
+      console.error("Save student error:", err);
+
+      setError(
+        err.message || "Unable to save student."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // =========================================================
+  // DELETE STUDENT
+  // =========================================================
+
+  const deleteStudent = async (student) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${student.fullName || "this student"}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setError("");
+      setSuccess("");
+
+      const response = await fetch(
+        `${API_BASE}/students/${student.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Delete failed (${response.status})`
+        );
+      }
+
+      setStudents((previous) =>
+        previous.filter(
+          (item) => item.id !== student.id
+        )
+      );
+
+      setSuccess(
+        `${student.fullName || "Student"} deleted successfully.`
+      );
+    } catch (err) {
+      console.error("Delete student error:", err);
+
+      setError(
+        "Unable to delete student. Please try again."
+      );
+    }
+  };
+
+  // =========================================================
+  // STATUS BADGE
+  // =========================================================
+
+  const statusBadge = (status) => {
+    if (status === "ACTIVE") {
+      return (
+        <span className="badge bg-success">
+          ACTIVE
+        </span>
+      );
+    }
+
+    if (status === "INACTIVE") {
+      return (
+        <span className="badge bg-secondary">
+          INACTIVE
+        </span>
+      );
+    }
+
+    if (status === "TRANSFERRED") {
+      return (
+        <span className="badge bg-warning text-dark">
+          TRANSFERRED
+        </span>
+      );
+    }
+
+    if (status === "COMPLETED") {
+      return (
+        <span className="badge bg-primary">
+          COMPLETED
+        </span>
+      );
+    }
+
+    return (
+      <span className="badge bg-dark">
+        {status || "-"}
+      </span>
+    );
+  };
+
+  // =========================================================
+  // RENDER
+  // =========================================================
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #eef7ff 0%, #fff4e6 50%, #fcecff 100%)",
+      }}
+    >
+      {/* =====================================================
+          NAVBAR
+      ====================================================== */}
+
+      <nav
+        style={{
+          background:
+            "linear-gradient(90deg, #0d6efd, #6f42c1)",
+          padding: "16px 0",
+          boxShadow:
+            "0 4px 15px rgba(0,0,0,0.15)",
+        }}
+      >
+        <div className="container d-flex justify-content-between align-items-center">
+          <div
+            style={{
+              color: "white",
+              fontSize: "24px",
+              fontWeight: "700",
+            }}
+          >
+            🏫 KVR Kids Campus
+          </div>
+
+          <Link
+            to="/admin"
+            className="btn btn-light fw-bold"
+          >
+            🏠 Admin Dashboard
+          </Link>
+        </div>
+      </nav>
+
+      {/* =====================================================
+          MAIN CONTENT
+      ====================================================== */}
+
+      <div className="container py-5">
+
+        {/* HEADER */}
+
+        <div
+          className="d-flex justify-content-between align-items-center mb-4"
+          style={{
+            flexWrap: "wrap",
+            gap: "20px",
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                color: "#0d6efd",
+                fontWeight: "800",
+                marginBottom: "8px",
+              }}
+            >
+              👨‍🎓 Students
+            </h1>
+
+            <p
+              style={{
+                fontSize: "18px",
+                color: "#555",
+                marginBottom: 0,
+              }}
+            >
+              Manage all school students
+            </p>
+          </div>
+
+          <div className="d-flex align-items-center gap-2">
+            <div
+              style={{
+                background: "white",
+                padding: "12px 20px",
+                borderRadius: "30px",
+                boxShadow:
+                  "0 3px 12px rgba(0,0,0,0.1)",
+                fontWeight: "700",
+                color: "#0d6efd",
+              }}
+            >
+              👥 {filteredStudents.length} Students
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary fw-bold"
+              onClick={openAddModal}
+            >
+              ➕ Add Student
+            </button>
+          </div>
+        </div>
+
+        {/* =====================================================
+            ALERTS
+        ====================================================== */}
+
+        {error && (
+          <div className="alert alert-danger shadow-sm">
+            <strong>⚠️ Error:</strong> {error}
+
+            <button
+              type="button"
+              className="btn-close float-end"
+              onClick={() => setError("")}
+            />
+          </div>
+        )}
+
+        {success && (
+          <div className="alert alert-success shadow-sm">
+            <strong>✅ Success:</strong> {success}
+
+            <button
+              type="button"
+              className="btn-close float-end"
+              onClick={() => setSuccess("")}
+            />
+          </div>
+        )}
+
+        {/* =====================================================
+            FILTER CARD
+        ====================================================== */}
+
+        <div
+          className="card border-0 shadow-sm mb-4"
+          style={{
+            borderRadius: "18px",
+          }}
+        >
+          <div className="card-body p-4">
+
+            <div className="row g-3 align-items-end">
+
+              {/* SEARCH */}
+
+              <div className="col-lg-5">
+                <label className="form-label fw-bold">
+                  🔎 Search Student
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control form-control-lg"
+                  placeholder="Name, admission no or roll no..."
+                  value={search}
+                  onChange={(e) =>
+                    setSearch(e.target.value)
+                  }
+                />
+              </div>
+
+              {/* CLASS FILTER */}
+
+              <div className="col-lg-3">
+                <label className="form-label fw-bold">
+                  🎓 Filter by Class
+                </label>
+
+                <select
+                  className="form-select form-select-lg"
+                  value={classFilter}
+                  onChange={(e) =>
+                    setClassFilter(e.target.value)
+                  }
+                >
+                  <option value="ALL">
+                    All Classes
+                  </option>
+
+                  {classes.map((schoolClass) => (
+                    <option
+                      key={schoolClass.id}
+                      value={schoolClass.id}
+                    >
+                      {schoolClass.className}
+                      {schoolClass.section &&
+                      schoolClass.section !== "-"
+                        ? ` - ${schoolClass.section}`
+                        : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* STATUS FILTER */}
+
+              <div className="col-lg-2">
+                <label className="form-label fw-bold">
+                  📌 Status
+                </label>
+
+                <select
+                  className="form-select form-select-lg"
+                  value={statusFilter}
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value)
+                  }
+                >
+                  <option value="ALL">
+                    All Status
+                  </option>
+                  <option value="ACTIVE">
+                    Active
+                  </option>
+                  <option value="INACTIVE">
+                    Inactive
+                  </option>
+                  <option value="TRANSFERRED">
+                    Transferred
+                  </option>
+                  <option value="COMPLETED">
+                    Completed
+                  </option>
+                </select>
+              </div>
+
+              {/* RESET */}
+
+              <div className="col-lg-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-lg w-100"
+                  onClick={() => {
+                    setSearch("");
+                    setClassFilter("ALL");
+                    setStatusFilter("ALL");
+                  }}
+                >
+                  🔄 Reset
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        {/* =====================================================
+            LOADING
+        ====================================================== */}
+
+        {loading && (
+          <div
+            className="card border-0 shadow-sm text-center p-5"
+            style={{
+              borderRadius: "18px",
+            }}
+          >
+            <div
+              className="spinner-border text-primary mb-3"
+              role="status"
+            />
+
+            <h5>
+              Loading students...
+            </h5>
+          </div>
+        )}
+
+        {/* =====================================================
+            EMPTY
+        ====================================================== */}
+
+        {!loading &&
+          !error &&
+          filteredStudents.length === 0 && (
+            <div
+              className="card border-0 shadow-sm text-center p-5"
+              style={{
+                borderRadius: "18px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "60px",
+                }}
+              >
+                🎒
+              </div>
+
+              <h3 className="fw-bold mt-3">
+                No Students Found
+              </h3>
+
+              <p className="text-muted">
+                Try changing the search or filters,
+                or add a new student.
+              </p>
+
+              <div>
+                <button
+                  className="btn btn-primary"
+                  onClick={openAddModal}
+                >
+                  ➕ Add Student
+                </button>
+              </div>
+            </div>
+          )}
+
+        {/* =====================================================
+            STUDENT TABLE
+        ====================================================== */}
+
+        {!loading &&
+          filteredStudents.length > 0 && (
+            <div
+              className="card border-0 shadow-sm"
+              style={{
+                borderRadius: "18px",
+                overflow: "hidden",
+              }}
+            >
+
+              <div
+                className="card-header d-flex justify-content-between align-items-center"
+                style={{
+                  background: "white",
+                  padding: "20px",
+                }}
+              >
+                <h4 className="fw-bold mb-0">
+                  📋 Student List
+                </h4>
+
+                <span className="badge bg-primary fs-6">
+                  {filteredStudents.length} Found
+                </span>
+              </div>
+
+              <div className="table-responsive">
+
+                <table className="table table-hover align-middle mb-0">
+
+                  <thead
+                    style={{
+                      background: "#dbeafe",
+                    }}
+                  >
+                    <tr>
+                      <th>#</th>
+                      <th>Admission No</th>
+                      <th>Student Name</th>
+                      <th>Class</th>
+                      <th>Roll No</th>
+                      <th>Gender</th>
+                      <th>Academic Year</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    {filteredStudents.map(
+                      (student, index) => (
+                        <tr key={student.id}>
+
+                          <td className="fw-bold">
+                            {index + 1}
+                          </td>
+
+                          <td>
+                            <span
+                              className="badge"
+                              style={{
+                                background:
+                                  "#6f42c1",
+                                fontSize: "13px",
+                              }}
+                            >
+                              {student.admissionNo}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div
+                              style={{
+                                fontWeight: "700",
+                                color: "#0d6efd",
+                              }}
+                            >
+                              🎓{" "}
+                              {student.fullName ||
+                                `${student.firstName || ""} ${
+                                  student.lastName || ""
+                                }`.trim()}
+                            </div>
+                          </td>
+
+                          <td>
+                            <span
+                              className="badge bg-info text-dark"
+                            >
+                              {getClassName(
+                                student.classId
+                              )}
+                            </span>
+                          </td>
+
+                          <td>
+                            {student.rollNo || "-"}
+                          </td>
+
+                          <td>
+                            {student.gender || "-"}
+                          </td>
+
+                          <td>
+                            {student.academicYear ||
+                              "-"}
+                          </td>
+
+                          <td>
+                            {statusBadge(
+                              student.status
+                            )}
+                          </td>
+
+                          <td>
+                            <div
+                              className="d-flex gap-2"
+                              style={{
+                                minWidth: "170px",
+                              }}
+                            >
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() =>
+                                  openEditModal(
+                                    student
+                                  )
+                                }
+                                title="Edit Student"
+                              >
+                                ✏️ Edit
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() =>
+                                  deleteStudent(
+                                    student
+                                  )
+                                }
+                                title="Delete Student"
+                              >
+                                🗑️ Delete
+                              </button>
+
+                            </div>
+                          </td>
+
+                        </tr>
+                      )
+                    )}
+
+                  </tbody>
+
+                </table>
+
+              </div>
+            </div>
+          )}
+      </div>
+
+      {/* =======================================================
+          ADD / EDIT STUDENT MODAL
+      ======================================================== */}
+
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background:
+              "rgba(0,0,0,0.55)",
+            zIndex: 1050,
+            overflowY: "auto",
+            padding: "30px 15px",
+          }}
+        >
+          <div
+            className="card border-0 shadow-lg mx-auto"
+            style={{
+              maxWidth: "1100px",
+              borderRadius: "20px",
+              overflow: "hidden",
+            }}
+          >
+
+            {/* MODAL HEADER */}
+
+            <div
+              style={{
+                background:
+                  "linear-gradient(90deg, #0d6efd, #6f42c1)",
+                color: "white",
+                padding: "20px 25px",
+              }}
+            >
+              <div className="d-flex justify-content-between align-items-center">
+
+                <div>
+                  <h3 className="fw-bold mb-1">
+                    {editingId
+                      ? "✏️ Edit Student"
+                      : "➕ Add New Student"}
+                  </h3>
+
+                  <small>
+                    Student login password:
+                    <strong>
+                      {" "}
+                      {DEFAULT_PASSWORD}
+                    </strong>
+                  </small>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-light"
+                  onClick={closeModal}
+                >
+                  ✕
+                </button>
+
+              </div>
+            </div>
+
+            {/* FORM */}
+
+            <form onSubmit={saveStudent}>
+
+              <div className="card-body p-4">
+
+                {/* STUDENT DETAILS */}
+
+                <h5 className="fw-bold text-primary mb-3">
+                  👨‍🎓 Student Details
+                </h5>
+
+                <div className="row g-3">
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Admission No *
+                    </label>
+
+                    <input
+                      name="admissionNo"
+                      value={form.admissionNo}
+                      onChange={handleChange}
+                      className="form-control"
+                      placeholder="KVR2026006"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Roll No *
+                    </label>
+
+                    <input
+                      name="rollNo"
+                      value={form.rollNo}
+                      onChange={handleChange}
+                      className="form-control"
+                      placeholder="6"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Class *
+                    </label>
+
+                    <select
+                      name="classId"
+                      value={form.classId}
+                      onChange={handleChange}
+                      className="form-select"
+                      required
+                    >
+                      <option value="">
+                        Select Class
+                      </option>
+
+                      {classes.map((schoolClass) => (
+                        <option
+                          key={schoolClass.id}
+                          value={schoolClass.id}
+                        >
+                          {schoolClass.className}
+                          {schoolClass.section &&
+                          schoolClass.section !== "-"
+                            ? ` - ${schoolClass.section}`
+                            : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      First Name *
+                    </label>
+
+                    <input
+                      name="firstName"
+                      value={form.firstName}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Last Name
+                    </label>
+
+                    <input
+                      name="lastName"
+                      value={form.lastName}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Full Name *
+                    </label>
+
+                    <input
+                      name="fullName"
+                      value={form.fullName}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Gender *
+                    </label>
+
+                    <select
+                      name="gender"
+                      value={form.gender}
+                      onChange={handleChange}
+                      className="form-select"
+                      required
+                    >
+                      <option value="Male">
+                        Male
+                      </option>
+                      <option value="Female">
+                        Female
+                      </option>
+                      <option value="Other">
+                        Other
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Date of Birth *
+                    </label>
+
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={form.dateOfBirth}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Blood Group
+                    </label>
+
+                    <input
+                      name="bloodGroup"
+                      value={form.bloodGroup}
+                      onChange={handleChange}
+                      className="form-control"
+                      placeholder="O+"
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Admission Date *
+                    </label>
+
+                    <input
+                      type="date"
+                      name="admissionDate"
+                      value={form.admissionDate}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Academic Year *
+                    </label>
+
+                    <input
+                      name="academicYear"
+                      value={form.academicYear}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                </div>
+
+                <hr className="my-4" />
+
+                {/* PARENT DETAILS */}
+
+                <h5 className="fw-bold text-primary mb-3">
+                  👨‍👩‍👧 Parent / Guardian Details
+                </h5>
+
+                <div className="row g-3">
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Father Name *
+                    </label>
+
+                    <input
+                      name="fatherName"
+                      value={form.fatherName}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Mother Name
+                    </label>
+
+                    <input
+                      name="motherName"
+                      value={form.motherName}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Guardian Name
+                    </label>
+
+                    <input
+                      name="guardianName"
+                      value={form.guardianName}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Parent Mobile *
+                    </label>
+
+                    <input
+                      name="parentMobile"
+                      value={form.parentMobile}
+                      onChange={handleChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Parent Email
+                    </label>
+
+                    <input
+                      type="email"
+                      name="parentEmail"
+                      value={form.parentEmail}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                </div>
+
+                <hr className="my-4" />
+
+                {/* ADDRESS */}
+
+                <h5 className="fw-bold text-primary mb-3">
+                  🏠 Address
+                </h5>
+
+                <div className="row g-3">
+
+                  <div className="col-md-6">
+                    <label className="form-label">
+                      Address Line 1
+                    </label>
+
+                    <input
+                      name="addressLine1"
+                      value={form.addressLine1}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">
+                      Address Line 2
+                    </label>
+
+                    <input
+                      name="addressLine2"
+                      value={form.addressLine2}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-3">
+                    <label className="form-label">
+                      Village
+                    </label>
+
+                    <input
+                      name="village"
+                      value={form.village}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-3">
+                    <label className="form-label">
+                      Mandal
+                    </label>
+
+                    <input
+                      name="mandal"
+                      value={form.mandal}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-3">
+                    <label className="form-label">
+                      District
+                    </label>
+
+                    <input
+                      name="district"
+                      value={form.district}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-3">
+                    <label className="form-label">
+                      Pincode
+                    </label>
+
+                    <input
+                      name="pincode"
+                      value={form.pincode}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                </div>
+
+                <hr className="my-4" />
+
+                {/* OTHER */}
+
+                <h5 className="fw-bold text-primary mb-3">
+                  ⚙️ Other Information
+                </h5>
+
+                <div className="row g-3">
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">
+                      Status
+                    </label>
+
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleChange}
+                      className="form-select"
+                    >
+                      <option value="ACTIVE">
+                        ACTIVE
+                      </option>
+                      <option value="INACTIVE">
+                        INACTIVE
+                      </option>
+                      <option value="TRANSFERRED">
+                        TRANSFERRED
+                      </option>
+                      <option value="COMPLETED">
+                        COMPLETED
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label">
+                      Previous School
+                    </label>
+
+                    <input
+                      name="previousSchool"
+                      value={form.previousSchool}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label">
+                      TC Number
+                    </label>
+
+                    <input
+                      name="tcNumber"
+                      value={form.tcNumber}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">
+                      Emergency Contact Name
+                    </label>
+
+                    <input
+                      name="emergencyContactName"
+                      value={
+                        form.emergencyContactName
+                      }
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">
+                      Emergency Contact Number
+                    </label>
+
+                    <input
+                      name="emergencyContactNumber"
+                      value={
+                        form.emergencyContactNumber
+                      }
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="col-12">
+                    <label className="form-label">
+                      Remarks
+                    </label>
+
+                    <textarea
+                      name="remarks"
+                      value={form.remarks}
+                      onChange={handleChange}
+                      className="form-control"
+                      rows="3"
+                    />
+                  </div>
+
+                </div>
+
+                {/* LOGIN INFORMATION */}
+
+                <div
+                  className="alert alert-info mt-4 mb-0"
+                >
+                  🔐 <strong>Student Login</strong>
+                  <br />
+                  Username / Admission ID:
+                  <strong>
+                    {" "}
+                    {form.admissionNo ||
+                      "Admission Number"}
+                  </strong>
+                  <br />
+                  Common Password:
+                  <strong>
+                    {" "}
+                    {DEFAULT_PASSWORD}
+                  </strong>
+                </div>
+
+              </div>
+
+              {/* MODAL FOOTER */}
+
+              <div
+                className="card-footer bg-white p-4 d-flex justify-content-end gap-2"
+              >
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                  disabled={saving}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary fw-bold"
+                  disabled={saving}
+                >
+                  {saving
+                    ? "Saving..."
+                    : editingId
+                    ? "💾 Update Student"
+                    : "➕ Add Student"}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Students;

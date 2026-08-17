@@ -1,0 +1,35 @@
+.coming-soon{
+
+    min-height:80vh;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:linear-gradient(135deg,#4facfe,#00c6ff);
+
+    color:white;
+
+    text-align:center;
+
+}
+
+.coming-soon h1{
+
+    font-size:60px;
+
+    font-weight:bold;
+
+    margin-bottom:20px;
+
+}
+
+.coming-soon p{
+
+    font-size:24px;
+
+    margin-bottom:30px;
+
+}

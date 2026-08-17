@@ -1,0 +1,145 @@
+.about-hero{
+
+    background:linear-gradient(135deg,#2b59ff,#3aa7ff);
+
+    padding:100px 0;
+
+    overflow:hidden;
+
+    position:relative;
+
+}
+
+.about-badge{
+
+    display:inline-block;
+
+    background:#ffd54f;
+
+    padding:12px 28px;
+
+    border-radius:40px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    margin-bottom:25px;
+
+    color:#000;
+
+}
+
+.about-title{
+
+    font-size:64px;
+
+    font-weight:800;
+
+    color:white;
+
+    line-height:1.2;
+
+}
+
+.about-title span{
+
+    color:#ffe14d;
+
+}
+
+.about-subtitle{
+
+    color:white;
+
+    margin-top:25px;
+
+    margin-bottom:20px;
+
+}
+
+.about-description{
+
+    color:white;
+
+    font-size:20px;
+
+    line-height:1.8;
+
+    margin-bottom:35px;
+
+}
+
+.about-buttons{
+
+    margin-top:30px;
+
+}
+
+.about-image{
+
+    max-width:90%;
+
+    animation:floatImage 4s ease-in-out infinite;
+
+}
+
+@keyframes floatImage{
+
+0%{
+
+transform:translateY(0);
+
+}
+
+50%{
+
+transform:translateY(-15px);
+
+}
+
+100%{
+
+transform:translateY(0);
+
+}
+
+}
+
+@media(max-width:991px){
+
+.about-title{
+
+font-size:42px;
+
+text-align:center;
+
+}
+
+.about-subtitle{
+
+text-align:center;
+
+}
+
+.about-description{
+
+text-align:center;
+
+}
+
+.about-buttons{
+
+text-align:center;
+
+margin-bottom:40px;
+
+}
+
+.about-image{
+
+max-width:75%;
+
+}
+
+}

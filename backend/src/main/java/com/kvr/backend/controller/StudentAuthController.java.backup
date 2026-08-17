@@ -1,0 +1,110 @@
+package com.kvr.backend.controller;
+
+import com.kvr.backend.entity.Student;
+import com.kvr.backend.repository.StudentRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173")
+public class StudentAuthController {
+
+    private final StudentRepository studentRepository;
+
+    public StudentAuthController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
+
+    @PostMapping("/student-login")
+    public ResponseEntity<?> studentLogin(
+            @RequestBody StudentLoginRequest request) {
+
+        if (request.studentId() == null ||
+            request.studentId().isBlank() ||
+            request.password() == null ||
+            request.password().isBlank()) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Student ID and password are required"
+                    ));
+        }
+
+        Optional<Student> studentOptional =
+                studentRepository.findByAdmissionNo(
+                        request.studentId()
+                );
+
+        if (studentOptional.isEmpty()) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Invalid Student ID or password"
+                    ));
+        }
+
+        Student student = studentOptional.get();
+
+        if (student.getStatus() != Student.StudentStatus.ACTIVE) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Student account is not active"
+                    ));
+        }
+
+        /*
+         * Development authentication.
+         *
+         * Current development password:
+         * student123
+         *
+         * This should be replaced with BCrypt
+         * before production deployment.
+         */
+
+        if (student.getPassword() == null ||
+            !student.getPassword().equals(request.password())) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Invalid Student ID or password"
+                    ));
+        }
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message", "Student login successful",
+
+                        "student", Map.of(
+                                "id", student.getId(),
+                                "studentId", student.getAdmissionNo(),
+                                "name", student.getFullName(),
+                                "classId", student.getClassId(),
+                                "academicYear", student.getAcademicYear(),
+                                "rollNo", student.getRollNo()
+                        )
+                )
+        );
+    }
+
+    public record StudentLoginRequest(
+            String studentId,
+            String password
+    ) {
+    }
+}
