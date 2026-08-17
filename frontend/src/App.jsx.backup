@@ -1,0 +1,256 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import Home from "./pages/Home";
+import AdmissionsPage from "./pages/AdmissionsPage";
+import About from "./pages/About";
+import Academics from "./pages/Academics";
+import ComingSoon from "./pages/ComingSoon";
+import Contact from "./pages/Contact";
+
+import StudentLogin from "./pages/StudentLogin";
+import StudentDashboard from "./pages/StudentDashboard";
+
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+
+import Classes from "./pages/Classes";
+import Students from "./pages/Students";
+
+import Teachers from "./pages/Teachers";
+
+
+function AdminComingSoon({ title }) {
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #eef7ff, #fff4e6, #f4efff)",
+      }}
+    >
+      <nav className="navbar navbar-dark bg-primary shadow-sm">
+        <div className="container">
+          <span className="navbar-brand fw-bold">
+            🏫 KVR Kids Campus
+          </span>
+
+          <a
+            href="/admin/dashboard"
+            className="btn btn-light fw-bold"
+          >
+            ← Admin Dashboard
+          </a>
+        </div>
+      </nav>
+
+      <div className="container py-5">
+        <div className="card border-0 shadow-lg">
+          <div className="card-body text-center p-5">
+            <div style={{ fontSize: "70px" }}>
+              🚧
+            </div>
+
+            <h1 className="fw-bold mt-3">
+              {title}
+            </h1>
+
+            <p className="text-muted">
+              This module is ready for configuration.
+            </p>
+
+            <a
+              href="/admin/dashboard"
+              className="btn btn-primary btn-lg fw-bold"
+            >
+              ← Back to Admin Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+
+      {/* =====================================================
+          PUBLIC PAGES
+      ===================================================== */}
+
+      <Route
+        path="/"
+        element={<Home />}
+      />
+
+      <Route
+        path="/admissions"
+        element={<AdmissionsPage />}
+      />
+
+      <Route
+        path="/about"
+        element={<About />}
+      />
+
+      <Route
+        path="/academics"
+        element={<Academics />}
+      />
+
+      <Route
+        path="/gallery"
+        element={<ComingSoon />}
+      />
+
+      <Route
+        path="/events"
+        element={<ComingSoon />}
+      />
+
+      <Route
+        path="/contact"
+        element={<Contact />}
+      />
+
+
+      {/* =====================================================
+          STUDENT
+      ===================================================== */}
+
+      <Route
+        path="/student/login"
+        element={<StudentLogin />}
+      />
+
+      <Route
+        path="/student/dashboard"
+        element={<StudentDashboard />}
+      />
+
+
+      {/* =====================================================
+          ADMIN
+      ===================================================== */}
+
+      <Route
+        path="/admin/login"
+        element={<AdminLogin />}
+      />
+
+      <Route
+        path="/admin/dashboard"
+        element={<AdminDashboard />}
+      />
+
+
+      {/* =====================================================
+          ADMIN STUDENTS
+      ===================================================== */}
+
+      <Route
+        path="/admin/students"
+        element={<Students />}
+      />
+
+
+      {/* =====================================================
+          ADMIN CLASSES
+      ===================================================== */}
+
+      <Route
+        path="/admin/classes"
+        element={<Classes />}
+      />
+
+
+      {/* =====================================================
+          ADMIN TEACHERS
+      ===================================================== */}
+
+      <Route
+  path="/admin/teachers"
+  element={<Teachers />}
+/>
+
+
+      {/* =====================================================
+          ADMIN ATTENDANCE
+      ===================================================== */}
+
+      <Route
+        path="/admin/attendance"
+        element={
+          <AdminComingSoon title="Attendance Management" />
+        }
+      />
+
+
+      {/* =====================================================
+          ADMIN FEES
+      ===================================================== */}
+
+      <Route
+        path="/admin/fees"
+        element={
+          <AdminComingSoon title="Fee Management" />
+        }
+      />
+
+
+      {/* =====================================================
+          ADMIN MARKS
+      ===================================================== */}
+
+      <Route
+        path="/admin/marks"
+        element={
+          <AdminComingSoon title="Marks Management" />
+        }
+      />
+
+
+      {/* =====================================================
+          ADMIN ADMISSIONS
+      ===================================================== */}
+
+      <Route
+        path="/admin/admissions"
+        element={
+          <AdminComingSoon title="Admissions Management" />
+        }
+      />
+
+
+      {/* =====================================================
+          ADMIN REPORTS
+      ===================================================== */}
+
+      <Route
+        path="/admin/reports"
+        element={
+          <AdminComingSoon title="School Reports" />
+        }
+      />
+
+
+      {/* =====================================================
+          UNKNOWN ROUTES
+      ===================================================== */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/"
+            replace
+          />
+        }
+      />
+
+    </Routes>
+  );
+}
+
+export default App;

@@ -37,9 +37,12 @@ public class SecurityConfig {
 
                 // Admin + Student login
                 .requestMatchers(
-                "/api/auth/**",
-        	"/api/student/auth/**",
-        	"/api/classes/**"
+                    "/api/auth/**",
+                    "/api/student/auth/**",
+                    "/api/classes/**",
+                    "/api/teachers/**",
+		    "/api/attendance/**",
+		    "/api/fees/**"
                 ).permitAll()
 
                 // Student APIs - development

@@ -16,6 +16,11 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Classes from "./pages/Classes";
 import Students from "./pages/Students";
 
+import Teachers from "./pages/Teachers";
+import Attendance from "./pages/Attendance";
+import Fees from "./pages/Fees";
+
+
 function AdminComingSoon({ title }) {
   return (
     <div
@@ -167,11 +172,9 @@ function App() {
       ===================================================== */}
 
       <Route
-        path="/admin/teachers"
-        element={
-          <AdminComingSoon title="Teachers Management" />
-        }
-      />
+  path="/admin/teachers"
+  element={<Teachers />}
+/>
 
 
       {/* =====================================================
@@ -179,11 +182,9 @@ function App() {
       ===================================================== */}
 
       <Route
-        path="/admin/attendance"
-        element={
-          <AdminComingSoon title="Attendance Management" />
-        }
-      />
+  path="/admin/attendance"
+  element={<Attendance />}
+/>
 
 
       {/* =====================================================
@@ -191,11 +192,9 @@ function App() {
       ===================================================== */}
 
       <Route
-        path="/admin/fees"
-        element={
-          <AdminComingSoon title="Fee Management" />
-        }
-      />
+  path="/admin/fees"
+  element={<Fees />}
+/>
 
 
       {/* =====================================================

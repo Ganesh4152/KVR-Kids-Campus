@@ -48,4 +48,5 @@ Thumbs.db
 *.ibd
 *.frm
 *.MYD
-*.MYI
+*.MYInode_modules/
+target/
