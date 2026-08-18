@@ -1,52 +1,53 @@
-# =========================================================
+# =====================================================
+# KVR Kids Campus - Git Ignore
+# =====================================================
+
 # Node / React
-# =========================================================
-
+node_modules/
 frontend/node_modules/
+frontend/build/
 frontend/dist/
-frontend/.vite/
 
-# =========================================================
-# Java / Maven
-# =========================================================
-
+# Java / Spring Boot
 backend/target/
+target/
 
-# =========================================================
-# IDE
-# =========================================================
-
-.idea/
-.vscode/
-*.iml
-
-# =========================================================
-# OS
-# =========================================================
-
-.DS_Store
-Thumbs.db
-
-# =========================================================
-# Logs
-# =========================================================
-
-*.log
-
-# =========================================================
-# Environment / Secrets
-# =========================================================
-
+# Environment / secrets
 .env
 .env.*
 !.env.example
 
-# =========================================================
-# Local database runtime files
-# =========================================================
+# IDE
+.idea/
+.vscode/
+*.iml
 
-*.ibd
-*.frm
-*.MYD
-*.MYInode_modules/
-target/
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Runtime uploads
+uploads/*
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Java generated files
+*.class
+
+# Backup directories
+KVR-Kids-Campus-Backups/
+
+# Local backup archives
+*.zip
+*.tar
+*.tar.gz

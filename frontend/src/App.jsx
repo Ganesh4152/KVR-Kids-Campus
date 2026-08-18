@@ -19,6 +19,8 @@ import Students from "./pages/Students";
 import Teachers from "./pages/Teachers";
 import Attendance from "./pages/Attendance";
 import Fees from "./pages/Fees";
+import AdminAdmissions from "./pages/AdminAdmissions";
+import AdmissionApplication from "./pages/AdmissionApplication";
 
 
 function AdminComingSoon({ title }) {
@@ -213,12 +215,15 @@ function App() {
           ADMIN ADMISSIONS
       ===================================================== */}
 
-      <Route
-        path="/admin/admissions"
-        element={
-          <AdminComingSoon title="Admissions Management" />
-        }
-      />
+     <Route
+  path="/admin/admissions"
+  element={<AdminAdmissions />}
+/>
+
+<Route
+  path="/admissions/apply"
+  element={<AdmissionApplication />}
+/>
 
 
       {/* =====================================================

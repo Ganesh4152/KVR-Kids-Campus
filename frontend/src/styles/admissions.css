@@ -1,90 +1,681 @@
-.admissions-section{
-    padding:90px 0;
-    background:linear-gradient(135deg,#4F46E5,#06B6D4);
-    color:#fff;
+/* =========================================================
+   KVR KIDS CAMPUS
+   ADMISSIONS PAGE
+   ========================================================= */
+
+
+/* =========================================================
+   ADMISSIONS SECTION
+   ========================================================= */
+
+.admissions-section {
+    padding: 90px 0;
+    background: linear-gradient(135deg, #4F46E5, #06B6D4);
+    color: #fff;
 }
 
-.admission-badge{
-    display:inline-block;
-    background:#FFD54F;
-    color:#000;
-    padding:10px 22px;
-    border-radius:30px;
-    font-weight:700;
-    margin-bottom:20px;
+
+.admission-badge {
+    display: inline-block;
+    background: #FFD54F;
+    color: #000;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-weight: 700;
+    margin-bottom: 20px;
 }
 
-.admission-title{
-    font-size:48px;
-    font-weight:800;
-    margin-bottom:20px;
+
+.admission-title {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 20px;
 }
 
-.admission-text{
-    font-size:18px;
-    line-height:1.8;
-    margin-bottom:30px;
+
+.admission-text {
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 30px;
 }
 
-.admission-list{
-    margin-bottom:35px;
+
+.admission-list {
+    margin-bottom: 35px;
 }
 
-.admission-item{
-    display:flex;
-    align-items:center;
-    margin-bottom:15px;
-    font-size:18px;
+
+.admission-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 18px;
 }
 
-.admission-item .icon{
-    color:#FFD54F;
-    margin-right:12px;
+
+.admission-item .icon {
+    color: #FFD54F;
+    margin-right: 12px;
 }
 
-.admission-buttons{
-    margin-top:30px;
+
+.admission-buttons {
+    margin-top: 30px;
 }
 
-.contact-card{
-    background:#fff;
-    color:#333;
-    padding:35px;
-    border-radius:20px;
-    box-shadow:0 12px 30px rgba(0,0,0,.2);
+
+/* =========================================================
+   CONTACT CARD
+   ========================================================= */
+
+.contact-card {
+    background: #fff;
+    color: #333;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
 }
 
-.contact-card h3{
-    color:#1E3A8A;
-    font-weight:700;
-    margin-bottom:15px;
+
+.contact-card h3 {
+    color: #1E3A8A;
+    font-weight: 700;
+    margin-bottom: 15px;
 }
 
-.contact-item{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-top:18px;
-    font-size:17px;
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    font-size: 17px;
 }
 
-.contact-item svg{
-    color:#4F46E5;
-    font-size:20px;
+
+.contact-item svg {
+    color: #4F46E5;
+    font-size: 20px;
 }
 
-@media(max-width:768px){
 
-.admissions-section{
-    text-align:center;
+/* =========================================================
+   ADMISSION APPLICATION MODAL
+   MAIN OVERLAY
+   ========================================================= */
+
+.admission-modal-overlay {
+    position: fixed !important;
+
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    padding: 20px !important;
+
+    box-sizing: border-box !important;
+
+    background: rgba(0, 0, 0, 0.65) !important;
+
+    z-index: 1050 !important;
+
+    overflow: hidden !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
 }
 
-.contact-card{
-    margin-top:40px;
+
+/* =========================================================
+   MODAL DIALOG
+   ========================================================= */
+
+.admission-modal-dialog {
+    position: relative !important;
+
+    width: 100% !important;
+
+    max-width: 1250px !important;
+
+    height: calc(100vh - 40px) !important;
+
+    max-height: calc(100vh - 40px) !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    min-height: 0 !important;
 }
 
-.admission-title{
-    font-size:34px;
+
+/* =========================================================
+   MODAL CONTENT
+   ========================================================= */
+
+.admission-modal-content {
+    position: relative !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+    max-height: 100% !important;
+
+    min-height: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+
+    border-radius: 10px !important;
 }
 
+
+/* =========================================================
+   FORM
+   IMPORTANT:
+   Targets the actual <form> even if it does not have
+   className="admission-modal-form"
+   ========================================================= */
+
+.admission-modal-content > form {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    flex: 1 1 auto !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: none !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    overflow: hidden !important;
+}
+
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.admission-modal-header {
+    position: relative !important;
+
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+
+    min-height: 120px !important;
+
+    padding: 24px 80px 20px 24px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: flex-start !important;
+
+    justify-content: space-between !important;
+
+    background: #0d6efd !important;
+
+    color: #fff !important;
+
+    z-index: 20 !important;
+}
+
+
+/* =========================================================
+   HEADER TITLE
+   ========================================================= */
+
+.admission-modal-header .modal-title {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 30px !important;
+
+    line-height: 1.25 !important;
+
+    font-weight: 700 !important;
+
+    color: #fff !important;
+}
+
+
+.admission-modal-header small {
+    display: block !important;
+
+    margin-top: 8px !important;
+
+    font-size: 16px !important;
+
+    line-height: 1.4 !important;
+
+    color: #fff !important;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+.admission-close-btn {
+    position: absolute !important;
+
+    top: 12px !important;
+
+    right: 14px !important;
+
+    width: 48px !important;
+
+    height: 48px !important;
+
+    min-width: 48px !important;
+
+    min-height: 48px !important;
+
+    max-width: 48px !important;
+
+    max-height: 48px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: none !important;
+
+    border-radius: 7px !important;
+
+    background: #fff !important;
+
+    color: #111 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    font-size: 20px !important;
+
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+
+    z-index: 100 !important;
+
+    opacity: 1 !important;
+}
+
+
+.admission-close-btn:hover {
+    background: #f0f0f0 !important;
+
+    color: #000 !important;
+}
+
+
+.admission-close-btn:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.5) !important;
+
+    outline-offset: 2px !important;
+}
+
+
+/* =========================================================
+   MODAL BODY
+   THIS IS THE ONLY SCROLLING AREA
+   ========================================================= */
+
+.admission-modal-body {
+    position: relative !important;
+
+    display: block !important;
+
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+
+    max-height: none !important;
+
+    margin: 0 !important;
+
+    padding: 28px !important;
+
+    box-sizing: border-box !important;
+
+    background: #fff !important;
+
+    color: #212529 !important;
+
+    overflow-y: auto !important;
+
+    overflow-x: hidden !important;
+
+    -webkit-overflow-scrolling: touch !important;
+
+    overscroll-behavior: contain !important;
+
+    scrollbar-width: auto !important;
+}
+
+
+/*
+   Bootstrap may apply its own modal scrolling.
+   These rules force our body to be the scroll container.
+*/
+
+.admission-modal-content .modal-body {
+    flex: 1 1 0 !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+
+    max-height: none !important;
+
+    overflow-y: auto !important;
+
+    overflow-x: hidden !important;
+}
+
+
+/* =========================================================
+   VISIBLE CHROME / EDGE SCROLLBAR
+   ========================================================= */
+
+.admission-modal-body::-webkit-scrollbar {
+    width: 14px !important;
+
+    display: block !important;
+}
+
+
+.admission-modal-body::-webkit-scrollbar-track {
+    background: #eeeeee !important;
+}
+
+
+.admission-modal-body::-webkit-scrollbar-thumb {
+    background: #888888 !important;
+
+    border-radius: 8px !important;
+
+    border: 3px solid #eeeeee !important;
+}
+
+
+.admission-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555555 !important;
+}
+
+
+/* =========================================================
+   FORM INPUTS
+   ========================================================= */
+
+.admission-modal-body .form-control,
+.admission-modal-body .form-select {
+    min-height: 42px !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   FORM SECTIONS
+   ========================================================= */
+
+.admission-modal-body h5 {
+    margin-top: 10px !important;
+
+    margin-bottom: 20px !important;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+   IMPORTANT:
+   Target footer directly inside form.
+   ========================================================= */
+
+.admission-modal-content > form > .modal-footer {
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+
+    min-height: 72px !important;
+
+    box-sizing: border-box !important;
+
+    margin: 0 !important;
+
+    padding: 14px 25px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: flex-end !important;
+
+    gap: 10px !important;
+
+    background: #fff !important;
+
+    border-top: 1px solid #dee2e6 !important;
+
+    z-index: 30 !important;
+}
+
+
+/* =========================================================
+   FOOTER BUTTONS
+   ========================================================= */
+
+.admission-modal-content > form > .modal-footer button {
+    flex: 0 0 auto !important;
+}
+
+
+/* =========================================================
+   EXISTING ADMISSIONS MOBILE DESIGN
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .admissions-section {
+        text-align: center;
+    }
+
+
+    .contact-card {
+        margin-top: 40px;
+    }
+
+
+    .admission-title {
+        font-size: 34px;
+    }
+}
+
+
+/* =========================================================
+   TABLET / MOBILE MODAL
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .admission-modal-overlay {
+        padding: 8px !important;
+
+        align-items: center !important;
+
+        justify-content: center !important;
+    }
+
+
+    .admission-modal-dialog {
+        width: 100% !important;
+
+        max-width: 100% !important;
+
+        height: calc(100vh - 16px) !important;
+
+        max-height: calc(100vh - 16px) !important;
+    }
+
+
+    .admission-modal-header {
+        min-height: 90px !important;
+
+        padding: 16px 65px 14px 16px !important;
+    }
+
+
+    .admission-modal-header .modal-title {
+        font-size: 23px !important;
+    }
+
+
+    .admission-modal-header small {
+        font-size: 14px !important;
+    }
+
+
+    .admission-close-btn {
+        top: 10px !important;
+
+        right: 10px !important;
+
+        width: 42px !important;
+
+        height: 42px !important;
+
+        min-width: 42px !important;
+
+        min-height: 42px !important;
+    }
+
+
+    .admission-modal-body {
+        padding: 20px !important;
+
+        overflow-y: auto !important;
+    }
+
+
+    .admission-modal-content > form > .modal-footer {
+        min-height: 64px !important;
+
+        padding: 10px 18px !important;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .admission-modal-overlay {
+        padding: 0 !important;
+    }
+
+
+    .admission-modal-dialog {
+        width: 100% !important;
+
+        max-width: 100% !important;
+
+        height: 100vh !important;
+
+        max-height: 100vh !important;
+    }
+
+
+    .admission-modal-content {
+        border-radius: 0 !important;
+    }
+
+
+    .admission-modal-header {
+        min-height: 82px !important;
+
+        padding: 14px 58px 12px 15px !important;
+    }
+
+
+    .admission-modal-header .modal-title {
+        font-size: 21px !important;
+    }
+
+
+    .admission-modal-header small {
+        font-size: 13px !important;
+    }
+
+
+    .admission-close-btn {
+        top: 9px !important;
+
+        right: 9px !important;
+
+        width: 38px !important;
+
+        height: 38px !important;
+
+        min-width: 38px !important;
+
+        min-height: 38px !important;
+    }
+
+
+    .admission-modal-body {
+        padding: 15px !important;
+
+        overflow-y: auto !important;
+    }
+
+
+    .admission-modal-content > form > .modal-footer {
+        min-height: 60px !important;
+
+        padding: 9px 12px !important;
+
+        gap: 7px !important;
+    }
 }

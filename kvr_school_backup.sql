@@ -46,8 +46,75 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (1,'admin','admin123','School Administrator','admin@kvrschool.com','7674050823','ADMIN','ACTIVE','2026-08-17 06:45:30','2026-08-14 10:22:28','2026-08-17 06:45:30');
+INSERT INTO `admin` VALUES (1,'admin','admin123','School Administrator','admin@kvrschool.com','7674050823','ADMIN','ACTIVE','2026-08-18 10:28:25','2026-08-14 10:22:28','2026-08-18 10:28:25');
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `admission_applications`
+--
+
+DROP TABLE IF EXISTS `admission_applications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admission_applications` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `application_no` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `student_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `gender` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `father_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mother_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `guardian_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `applying_for_class` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `previous_school` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `admission_date` date DEFAULT NULL,
+  `status` enum('APPROVED','CONVERTED','NEW','REJECTED','UNDER_REVIEW') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remarks` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `academic_year` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address_line1` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `admin_remarks` text COLLATE utf8mb4_unicode_ci,
+  `alternate_mobile` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `application_date` date NOT NULL,
+  `bus_required` bit(1) DEFAULT NULL,
+  `country` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mandal` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_mobile` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pincode` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `village` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bus_route` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pickup_point` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `application_no` (`application_no`),
+  KEY `idx_admission_application_no` (`application_no`),
+  KEY `idx_admission_parent_mobile` (`parent_mobile`),
+  KEY `idx_admission_status` (`status`),
+  KEY `idx_admission_academic_year` (`academic_year`),
+  KEY `idx_admission_application_status` (`status`),
+  KEY `idx_admission_application_mobile` (`parent_mobile`),
+  KEY `idx_admission_application_email` (`parent_email`),
+  KEY `idx_admission_application_year` (`academic_year`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `admission_applications`
+--
+
+LOCK TABLES `admission_applications` WRITE;
+/*!40000 ALTER TABLE `admission_applications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `admission_applications` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -80,7 +147,7 @@ CREATE TABLE `attendance` (
   CONSTRAINT `fk_attendance_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`),
   CONSTRAINT `fk_attendance_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`),
   CONSTRAINT `fk_attendance_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +156,7 @@ CREATE TABLE `attendance` (
 
 LOCK TABLES `attendance` WRITE;
 /*!40000 ALTER TABLE `attendance` DISABLE KEYS */;
-INSERT INTO `attendance` VALUES (1,'2026-08-14',1,4,NULL,'PRESENT',NULL,NULL,NULL,'2026-08-14 10:22:40','2026-08-14 10:22:40',NULL,''),(2,'2026-08-14',2,5,NULL,'ABSENT',NULL,NULL,NULL,'2026-08-14 10:22:40','2026-08-14 10:22:40',NULL,''),(3,'2026-08-17',1,4,1,'PRESENT',NULL,NULL,'','2026-08-17 07:44:34','2026-08-17 09:50:10',NULL,'2026-2027'),(4,'2026-08-17',2,5,NULL,'ABSENT',NULL,NULL,'','2026-08-17 07:49:08','2026-08-17 07:51:01',NULL,''),(5,'2026-08-17',3,6,NULL,'PRESENT',NULL,NULL,'','2026-08-17 07:49:13','2026-08-17 14:07:50',NULL,'2026-2027'),(6,'2026-08-17',4,7,NULL,'LATE',NULL,NULL,'','2026-08-17 07:49:17','2026-08-17 07:50:47',NULL,''),(7,'2026-08-17',5,8,NULL,'HALF_DAY',NULL,NULL,'','2026-08-17 07:49:18','2026-08-17 07:49:18',NULL,''),(8,'2026-08-17',8,4,NULL,'PRESENT',NULL,NULL,'','2026-08-17 07:49:19','2026-08-17 09:50:10',NULL,'2026-2027'),(9,'2026-08-17',9,4,NULL,'ABSENT',NULL,NULL,'','2026-08-17 07:49:20','2026-08-17 09:50:10',NULL,'2026-2027'),(10,'2026-08-16',3,6,NULL,'PRESENT',NULL,NULL,'','2026-08-17 14:07:57','2026-08-17 14:07:57',NULL,'2026-2027');
+INSERT INTO `attendance` VALUES (1,'2026-08-14',1,4,NULL,'PRESENT',NULL,NULL,NULL,'2026-08-14 10:22:40','2026-08-14 10:22:40',NULL,''),(2,'2026-08-14',2,5,NULL,'ABSENT',NULL,NULL,NULL,'2026-08-14 10:22:40','2026-08-14 10:22:40',NULL,''),(3,'2026-08-17',1,4,1,'PRESENT',NULL,NULL,'','2026-08-17 07:44:34','2026-08-17 09:50:10',NULL,'2026-2027'),(4,'2026-08-17',2,5,NULL,'ABSENT',NULL,NULL,'','2026-08-17 07:49:08','2026-08-17 07:51:01',NULL,''),(5,'2026-08-17',3,6,NULL,'PRESENT',NULL,NULL,'','2026-08-17 07:49:13','2026-08-17 14:07:50',NULL,'2026-2027'),(6,'2026-08-17',4,7,NULL,'LATE',NULL,NULL,'','2026-08-17 07:49:17','2026-08-17 07:50:47',NULL,''),(7,'2026-08-17',5,8,NULL,'HALF_DAY',NULL,NULL,'','2026-08-17 07:49:18','2026-08-17 07:49:18',NULL,''),(8,'2026-08-17',8,4,NULL,'PRESENT',NULL,NULL,'','2026-08-17 07:49:19','2026-08-17 09:50:10',NULL,'2026-2027'),(9,'2026-08-17',9,4,NULL,'ABSENT',NULL,NULL,'','2026-08-17 07:49:20','2026-08-17 09:50:10',NULL,'2026-2027'),(10,'2026-08-16',3,6,NULL,'PRESENT',NULL,NULL,'','2026-08-17 14:07:57','2026-08-17 14:07:57',NULL,'2026-2027'),(11,'2026-08-18',1,4,NULL,'ABSENT',NULL,NULL,'','2026-08-18 09:54:36','2026-08-18 09:54:36',NULL,'2026-2027'),(12,'2026-08-18',8,4,NULL,'PRESENT',NULL,NULL,'','2026-08-18 09:54:36','2026-08-18 09:54:43',NULL,'2026-2027'),(13,'2026-08-18',9,4,NULL,'PRESENT',NULL,NULL,'','2026-08-18 09:54:36','2026-08-18 09:54:43',NULL,'2026-2027');
 /*!40000 ALTER TABLE `attendance` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -217,7 +284,7 @@ CREATE TABLE `fees` (
   KEY `idx_fee_class` (`class_id`),
   CONSTRAINT `fk_fee_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`),
   CONSTRAINT `fk_fee_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -226,7 +293,7 @@ CREATE TABLE `fees` (
 
 LOCK TABLES `fees` WRITE;
 /*!40000 ALTER TABLE `fees` DISABLE KEYS */;
-INSERT INTO `fees` VALUES (1,NULL,1,4,'2026-2027','Monthly',NULL,25000.00,0.00,0.00,0.00,NULL,0.00,0.00,'2026-08-16',NULL,'Cash',NULL,'PENDING','','2026-08-17 15:02:50','2026-08-17 15:05:04',15000.00,25000.00,0.00,10000.00,NULL);
+INSERT INTO `fees` VALUES (2,NULL,9,4,'2026-2027','Monthly',NULL,25000.00,0.00,0.00,0.00,NULL,0.00,0.00,'2026-08-15',NULL,'Cash',NULL,'PENDING','','2026-08-17 17:40:30','2026-08-17 17:40:30',12000.00,13000.00,12000.00,13000.00,NULL),(3,NULL,1,4,'2026-2027','Monthly',NULL,25000.00,0.00,0.00,0.00,NULL,0.00,0.00,'2026-08-16',NULL,'Cash',NULL,'PENDING','','2026-08-17 18:03:37','2026-08-17 18:03:37',13000.00,10000.00,15000.00,12000.00,NULL);
 /*!40000 ALTER TABLE `fees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -520,7 +587,7 @@ CREATE TABLE `students` (
 
 LOCK TABLES `students` WRITE;
 /*!40000 ALTER TABLE `students` DISABLE KEYS */;
-INSERT INTO `students` VALUES (1,'KVR2026001','student123','1','Rahul','Reddy','Rahul Reddy','Male','2019-06-15','O+',NULL,NULL,4,'2026-06-01','2026-2027','Ramesh Reddy','Lakshmi','Ramesh Reddy','9876543210','9876543211','rahul@example.com','Farmer',450000.00,'Main Road','Near Temple','Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-1','Bus Stop','Monthly',30000.00,10000.00,20000.00,0.00,0,NULL,NULL,'Ramesh Reddy','9876543210','Little Flowers School','TC001','Good Student','ACTIVE','2026-08-14 10:22:39','2026-08-15 04:48:17'),(2,'KVR2026002','student123','2','Sneha','Reddy','Sneha Reddy','Female','2018-09-20','A+',NULL,NULL,5,'2026-06-01','2026-2027','Suresh','Anitha','Suresh','9123456789','9123456790','sneha@example.com','Business',800000.00,'Tharigonda Road','Near Bus Stand','Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',0,NULL,NULL,'Monthly',32000.00,32000.00,0.00,2000.00,0,NULL,'Peanuts','Suresh','9123456789','Bhashyam School','TC002','Excellent Student','INACTIVE','2026-08-14 10:22:39','2026-08-16 04:18:37'),(3,'KVR2026003',NULL,'3','Arjun','Kumar','Arjun Kumar','Male','2017-11-12','B+',NULL,NULL,6,'2026-06-01','2026-2027','Prakash','Deepa','Prakash','9988776655',NULL,'arjun@example.com','Government Employee',650000.00,'Market Street',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-2','Market Circle','Quarterly',36000.00,12000.00,24000.00,1000.00,0,NULL,NULL,'Prakash','9988776655','Vidya School','TC003','Regular Attendance','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(4,'KVR2026004',NULL,'4','Keerthana','Rao','Keerthana Rao','Female','2016-05-08','AB+',NULL,NULL,7,'2026-06-01','2026-2027','Ravi Rao','Sujatha','Ravi Rao','9012345678',NULL,'keerthana@example.com','Engineer',1200000.00,'Teachers Colony',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',0,NULL,NULL,'Yearly',40000.00,40000.00,0.00,5000.00,0,NULL,NULL,'Ravi Rao','9012345678','Delhi Public School','TC004','Merit Student','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(5,'KVR2026005',NULL,'5','Harsha','Varma','Harsha Varma','Male','2015-01-18','A-',NULL,NULL,8,'2026-06-01','2026-2027','Venkatesh','Bhavani','Venkatesh','9345678901',NULL,'harsha@example.com','Doctor',1500000.00,'Railway Colony',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-3','Railway Gate','Half-Yearly',45000.00,22500.00,22500.00,3000.00,0,'Asthma',NULL,'Venkatesh','9345678901','Sri Chaitanya','TC005','Needs Medical Attention','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(8,'KVR2026006','student123','2','Ananya','Reddy','Ananya Reddy','Female','2019-08-20','A+',NULL,NULL,4,'2026-08-16','2026-2027','Suresh Reddy','Lakshmi Reddy',NULL,'9876543211',NULL,'ananya@example.com',NULL,0.00,NULL,NULL,NULL,NULL,NULL,NULL,'India',NULL,0,NULL,NULL,'Quarterly',25000.00,12000.00,13000.00,0.00,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'ACTIVE','2026-08-16 04:12:24','2026-08-17 04:12:58'),(9,'KVR2027001','student123','3','Jahnavi','Gurramkonda','Gurramkonda Jahnavi','Female','2020-04-16','','','',4,'2026-08-16','2026-2027','Gurramkonda Ganesh','P BHAVANI','','07674050823','','ganikings.g@gmail.com','',0.00,'2 53 1, Marripadu, gurramkonda , Annamayya','Marripadu','','','','','India','517299',0,'','','Monthly',0.00,0.00,0.00,0.00,0,'','','','','','','','ACTIVE','2026-08-16 04:17:15','2026-08-16 04:17:50');
+INSERT INTO `students` VALUES (1,'KVR2026001','student123','1','Ashok','Reddy','Ashok Reddy','Male','2020-01-17','O+',NULL,NULL,4,'2026-06-12','2026-2027','Ramesh Reddy','Sneha Redy','','9987483874','9987483874','rahul@example.com','Farmer',450000.00,'Main Road','Near Temple','Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-1','Bus Stop','Monthly',30000.00,10000.00,20000.00,0.00,0,NULL,NULL,'Ramesh Reddy','9876543210','Little Flowers School','TC001','Good Student','ACTIVE','2026-08-14 10:22:39','2026-08-18 10:33:22'),(2,'KVR2026002','student123','2','Jahnavi','Gurramkonda','Jahnavi Gurramkonda','Female','2020-04-16','O+',NULL,NULL,4,'2026-04-16','2026-2027','Gurramkonda Ganesh','Bhavani','','7893099267','7893099267','jaanu@example.com','Business',800000.00,'Tharigonda Road','Near Bus Stand','Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',0,NULL,NULL,'Monthly',32000.00,32000.00,0.00,2000.00,0,NULL,'Peanuts','Suresh','9123456789','Bhashyam School','TC002','Excellent Student','ACTIVE','2026-08-14 10:22:39','2026-08-18 10:35:06'),(3,'KVR2026003',NULL,'3','Arjun','Kumar','Arjun Kumar','Male','2017-11-12','B+',NULL,NULL,6,'2026-06-01','2026-2027','Prakash','Deepa','Prakash','9988776655',NULL,'arjun@example.com','Government Employee',650000.00,'Market Street',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-2','Market Circle','Quarterly',36000.00,12000.00,24000.00,1000.00,0,NULL,NULL,'Prakash','9988776655','Vidya School','TC003','Regular Attendance','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(4,'KVR2026004',NULL,'4','Keerthana','Rao','Keerthana Rao','Female','2016-05-08','AB+',NULL,NULL,7,'2026-06-01','2026-2027','Ravi Rao','Sujatha','Ravi Rao','9012345678',NULL,'keerthana@example.com','Engineer',1200000.00,'Teachers Colony',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',0,NULL,NULL,'Yearly',40000.00,40000.00,0.00,5000.00,0,NULL,NULL,'Ravi Rao','9012345678','Delhi Public School','TC004','Merit Student','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(5,'KVR2026005',NULL,'5','Harsha','Varma','Harsha Varma','Male','2015-01-18','A-',NULL,NULL,8,'2026-06-01','2026-2027','Venkatesh','Bhavani','Venkatesh','9345678901',NULL,'harsha@example.com','Doctor',1500000.00,'Railway Colony',NULL,'Vayalpadu','Vayalpadu','Annamayya','Andhra Pradesh','India','517299',1,'Route-3','Railway Gate','Half-Yearly',45000.00,22500.00,22500.00,3000.00,0,'Asthma',NULL,'Venkatesh','9345678901','Sri Chaitanya','TC005','Needs Medical Attention','ACTIVE','2026-08-14 10:22:39','2026-08-14 10:22:39'),(8,'KVR2026006','student123','2','Ananya','Reddy','Ananya Reddy','Female','2019-08-20','A+',NULL,NULL,4,'2026-08-16','2026-2027','Suresh Reddy','Lakshmi Reddy',NULL,'9876543211',NULL,'ananya@example.com',NULL,0.00,NULL,NULL,NULL,NULL,NULL,NULL,'India',NULL,0,NULL,NULL,'Quarterly',25000.00,12000.00,13000.00,0.00,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'ACTIVE','2026-08-16 04:12:24','2026-08-17 04:12:58'),(9,'KVR2027001','student123','3','Jahnavi','Gurramkonda','Gurramkonda Jahnavi','Female','2020-04-16','','','',4,'2026-08-16','2026-2027','Gurramkonda Ganesh','P BHAVANI','','07674050823','','ganikings.g@gmail.com','',0.00,'2 53 1, Marripadu, gurramkonda , Annamayya','Marripadu','','','','','India','517299',0,'','','Monthly',0.00,0.00,0.00,0.00,0,'','','','','','','','ACTIVE','2026-08-16 04:17:15','2026-08-16 04:17:50');
 /*!40000 ALTER TABLE `students` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -760,4 +827,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-17 20:41:38
+-- Dump completed on 2026-08-18 22:13:08
