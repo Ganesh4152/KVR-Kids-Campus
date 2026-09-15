@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaPaperPlane, FaTimes } from "react-icons/fa";
 
-const API_URL = "http://localhost:8080/api/admissions";
+const API_URL = "/api/admissions";
 
 const initialForm = {
   firstName: "",

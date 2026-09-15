@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:8080/api/admissions";
+const API_URL = "/api/admissions";
 
 function AdminAdmissions() {
 

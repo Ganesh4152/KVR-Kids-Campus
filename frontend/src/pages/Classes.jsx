@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const API_URL = "http://localhost:8080/api/classes";
+const API_URL = "/api/classes";
 
 function Classes() {
 

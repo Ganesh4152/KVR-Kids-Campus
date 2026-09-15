@@ -24,7 +24,7 @@ function ClassStudents() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:8080/api/students/class/${classId}`
+        `/api/students/class/${classId}`
       );
 
       if (!response.ok) {

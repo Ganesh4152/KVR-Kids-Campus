@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "/api";
 const STUDENT_API = `${API_BASE}/students`;
 const CLASS_API = `${API_BASE}/classes`;
 

@@ -340,7 +340,7 @@ function StudentDashboard() {
       setFeeError("");
 
       const response = await fetch(
-        "http://localhost:8080/api/fees"
+        "/api/fees"
       );
 
       if (!response.ok) {

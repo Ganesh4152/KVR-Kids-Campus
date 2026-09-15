@@ -1,0 +1,92 @@
+# =========================================================
+# KVR Kids Campus - Docker Compose
+# =========================================================
+
+services:
+
+  # =======================================================
+  # MYSQL DATABASE
+  # =======================================================
+  mysql:
+    image: mysql:8.0
+    container_name: kvr-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${KVR_DB_PASSWORD}
+      MYSQL_DATABASE: kvr_school
+
+    volumes:
+      - kvr-mysql-data:/var/lib/mysql
+
+      # Database initialization scripts.
+      # Docker/MySQL executes .sql files alphabetically.
+      - ./database/docker-init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-p${KVR_DB_PASSWORD}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+
+  # =======================================================
+  # SPRING BOOT BACKEND
+  # =======================================================
+  backend:
+    build:
+      context: ./backend
+
+    image: kvr-kids-campus-backend:1.0
+
+    container_name: kvr-backend
+    restart: unless-stopped
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kvr_school?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${KVR_DB_PASSWORD}
+      SERVER_PORT: 8080
+
+    expose:
+      - "8080"
+
+
+  # =======================================================
+  # REACT + NGINX FRONTEND
+  # =======================================================
+  frontend:
+    build:
+      context: ./frontend
+
+    image: kvr-kids-campus-frontend:1.0
+
+    container_name: kvr-frontend
+    restart: unless-stopped
+
+    depends_on:
+      - backend
+
+    ports:
+      - "80:80"
+
+
+# =========================================================
+# PERSISTENT VOLUMES
+# =========================================================
+volumes:
+  kvr-mysql-data:

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "/api";
 
 const emptyTeacher = {
   employeeId: "",

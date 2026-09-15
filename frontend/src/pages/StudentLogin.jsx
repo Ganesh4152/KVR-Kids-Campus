@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:8080/api/auth/student-login";
+const API_URL = "/api/auth/student-login";
 
 function StudentLogin() {
   const navigate = useNavigate();
