@@ -161,25 +161,41 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 sh '''
-                    set -e
+                    set -eu
 
-                    echo "=== FRONTEND TEST ==="
-                    curl -fsS http://localhost/ > /tmp/kvr-home.html
+                    echo "=== CONTAINER STATUS ==="
 
-                    echo
-                    echo "Frontend is responding."
-
-                    echo
-                    echo "=== API TEST ==="
-                    curl -fsS http://localhost/api/students > /tmp/kvr-students.json
+                    for container in kvr-mysql kvr-backend kvr-frontend; do
+                        status=$(docker inspect --format '{{.State.Status}}' "$container")
+                        echo "$container: $status"
+                        test "$status" = "running"
+                    done
 
                     echo
+                    echo "=== MYSQL HEALTH ==="
+
+                    MYSQL_STATUS=$(docker inspect                         --format '{{.State.Health.Status}}'                         kvr-mysql)
+
+                    echo "MySQL health: $MYSQL_STATUS"
+                    test "$MYSQL_STATUS" = "healthy"
+
+                    echo
+                    echo "=== FRONTEND / NGINX TEST ==="
+
+                    docker exec kvr-frontend                         wget -q -O /tmp/kvr-home.html                         http://localhost/
+
+                    docker exec kvr-frontend                         sh -c 'test -s /tmp/kvr-home.html'
+
+                    echo "Frontend/Nginx is responding."
+
+                    echo
+                    echo "=== BACKEND API TEST ==="
+
+                    docker exec kvr-frontend                         wget -q -O /tmp/kvr-students.json                         http://backend:8080/api/students
+
+                    docker exec kvr-frontend                         sh -c 'test -s /tmp/kvr-students.json'
+
                     echo "Backend API is responding."
-
-                    echo
-                    echo "=== RESPONSE CHECK ==="
-                    test -s /tmp/kvr-home.html
-                    test -s /tmp/kvr-students.json
 
                     echo
                     echo "KVR smoke test successful."
