@@ -82,7 +82,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Images') {
+        stage('Push and Deploy') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -114,55 +114,47 @@ pipeline {
                         docker push ${FRONTEND_IMAGE}:latest
 
                         echo
-                        echo "=== LOGOUT ==="
+                        echo "=== DEPLOYING TO KVR EC2 ==="
 
+                        cd "$DEPLOY_DIR"
+
+                        export KVR_BACKEND_IMAGE="${BACKEND_IMAGE}:${BUILD_NUMBER}"
+                        export KVR_FRONTEND_IMAGE="${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+
+                        echo
+                        echo "=== DEPLOYMENT IMAGES ==="
+                        echo "Backend : $KVR_BACKEND_IMAGE"
+                        echo "Frontend: $KVR_FRONTEND_IMAGE"
+
+                        echo
+                        echo "=== PULL BACKEND IMAGE ==="
+                        docker pull "$KVR_BACKEND_IMAGE"
+
+                        echo
+                        echo "=== PULL FRONTEND IMAGE ==="
+                        docker pull "$KVR_FRONTEND_IMAGE"
+
+                        echo
+                        echo "=== CURRENT STACK ==="
+                        docker compose ps
+
+                        echo
+                        echo "=== DEPLOY BACKEND ==="
+                        docker compose up -d --no-deps backend
+
+                        echo
+                        echo "=== DEPLOY FRONTEND ==="
+                        docker compose up -d --no-deps frontend
+
+                        echo
+                        echo "=== STACK AFTER DEPLOYMENT ==="
+                        docker compose ps
+
+                        echo
+                        echo "=== LOGOUT ==="
                         docker logout
                     '''
                 }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                    set -e
-
-                    echo "=== DEPLOYING TO KVR EC2 ==="
-
-                    cd "$DEPLOY_DIR"
-
-                    export KVR_BACKEND_IMAGE="${BACKEND_IMAGE}:${BUILD_NUMBER}"
-                    export KVR_FRONTEND_IMAGE="${FRONTEND_IMAGE}:${BUILD_NUMBER}"
-
-                    echo
-                    echo "=== DEPLOYMENT IMAGES ==="
-                    echo "Backend : $KVR_BACKEND_IMAGE"
-                    echo "Frontend: $KVR_FRONTEND_IMAGE"
-
-                    echo
-                    echo "=== PULL BACKEND IMAGE ==="
-                    docker pull "$KVR_BACKEND_IMAGE"
-
-                    echo
-                    echo "=== PULL FRONTEND IMAGE ==="
-                    docker pull "$KVR_FRONTEND_IMAGE"
-
-                    echo
-                    echo "=== CURRENT STACK ==="
-                    docker compose ps
-
-                    echo
-                    echo "=== DEPLOY BACKEND ==="
-                    docker compose up -d --no-deps backend
-
-                    echo
-                    echo "=== DEPLOY FRONTEND ==="
-                    docker compose up -d --no-deps frontend
-
-                    echo
-                    echo "=== STACK AFTER DEPLOYMENT ==="
-                    docker compose ps
-                '''
             }
         }
 
