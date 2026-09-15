@@ -47,7 +47,7 @@ services:
     build:
       context: ./backend
 
-    image: kvr-kids-campus-backend:1.0
+    image: ${KVR_BACKEND_IMAGE:-gani4152/kvr-kids-campus-backend:latest}
 
     container_name: kvr-backend
     restart: unless-stopped
@@ -73,7 +73,7 @@ services:
     build:
       context: ./frontend
 
-    image: kvr-kids-campus-frontend:1.0
+    image: ${KVR_FRONTEND_IMAGE:-gani4152/kvr-kids-campus-frontend:latest}
 
     container_name: kvr-frontend
     restart: unless-stopped
