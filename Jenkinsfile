@@ -189,9 +189,23 @@ pipeline {
                     echo "Frontend/Nginx is responding."
 
                     echo
-                    echo "=== BACKEND API TEST ==="
+                    echo "=== BACKEND API READINESS TEST ==="
 
-                    docker exec kvr-frontend                         wget -q -O /tmp/kvr-students.json                         http://backend:8080/api/students
+                    BACKEND_READY=false
+
+                    for attempt in 1 2 3 4 5 6 7 8 9 10; do
+                        echo "Backend readiness check: attempt $attempt/10"
+
+                        if docker exec kvr-frontend                             wget -q -O /tmp/kvr-students.json                             http://backend:8080/api/students; then
+
+                            BACKEND_READY=true
+                            break
+                        fi
+
+                        sleep 3
+                    done
+
+                    test "$BACKEND_READY" = "true"
 
                     docker exec kvr-frontend                         sh -c 'test -s /tmp/kvr-students.json'
 
