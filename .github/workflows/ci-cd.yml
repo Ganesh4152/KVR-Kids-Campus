@@ -127,16 +127,17 @@ jobs:
 
     needs: docker-build-push
 
-    env:
-      BACKEND_IMAGE_TAG: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
-      FRONTEND_IMAGE_TAG: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
-
     steps:
+
+      # --------------------------------------
+      # CONFIGURE SSH
+      # --------------------------------------
 
       - name: Configure SSH
         env:
           EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+
         run: |
           mkdir -p ~/.ssh
 
@@ -148,10 +149,20 @@ jobs:
 
           chmod 600 ~/.ssh/known_hosts
 
+
+      # --------------------------------------
+      # DEPLOY APPLICATION TO EC2
+      # --------------------------------------
+
       - name: Deploy Application
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
+
+          BACKEND_IMAGE_TAG: gani4152/kvr-kids-campus-backend:${{ github.sha }}
+
+          FRONTEND_IMAGE_TAG: gani4152/kvr-kids-campus-frontend:${{ github.sha }}
+
         run: |
 
           ssh -i ~/.ssh/id_ed25519 \
@@ -164,7 +175,13 @@ jobs:
 
           cd /home/ubuntu/DevOpsProjects/KVR-Kids-Campus
 
-          echo "Starting KVR Kids Campus deployment"
+          echo "======================================"
+          echo "KVR Kids Campus Deployment Started"
+          echo "======================================"
+
+          # ----------------------------------
+          # CHECK ENVIRONMENT CONFIGURATION
+          # ----------------------------------
 
           if [ ! -f .env ]; then
             echo "ERROR: EC2 .env file is missing"
@@ -173,7 +190,9 @@ jobs:
 
           docker compose --env-file .env config -q
 
-          # Save the currently running images for rollback.
+          # ----------------------------------
+          # SAVE PREVIOUS APPLICATION IMAGES
+          # ----------------------------------
 
           OLD_BACKEND_ID=$(docker inspect --format '{{.Image}}' kvr-backend)
 
@@ -189,7 +208,11 @@ jobs:
 
           docker tag "$OLD_FRONTEND_ID" "$OLD_FRONTEND_IMAGE"
 
-          # Rollback function.
+          echo "Previous application images saved."
+
+          # ----------------------------------
+          # ROLLBACK FUNCTION
+          # ----------------------------------
 
           rollback() {
 
@@ -197,17 +220,30 @@ jobs:
 
             trap - ERR
 
-            echo "Deployment failed. Starting rollback."
+            echo "======================================"
+            echo "DEPLOYMENT FAILED"
+            echo "Starting rollback"
+            echo "======================================"
 
             export KVR_BACKEND_IMAGE="$OLD_BACKEND_IMAGE"
 
             export KVR_FRONTEND_IMAGE="$OLD_FRONTEND_IMAGE"
 
-            docker compose --env-file .env up -d --no-deps backend frontend || true
+            docker compose --env-file .env up \
+              -d --no-build --no-deps backend frontend || true
 
             sleep 15
 
-            curl -fsS http://localhost/ >/dev/null || true
+            if curl -fsS http://localhost/ >/dev/null && \
+               curl -fsS http://localhost/api/students >/dev/null; then
+
+              echo "Rollback health checks passed."
+
+            else
+
+              echo "WARNING: Rollback health checks failed."
+
+            fi
 
             echo "Rollback process completed."
 
@@ -216,19 +252,30 @@ jobs:
 
           trap rollback ERR
 
-          # Pull newly published images.
+          # ----------------------------------
+          # PULL NEW DOCKER IMAGES
+          # ----------------------------------
 
           export KVR_BACKEND_IMAGE
+
           export KVR_FRONTEND_IMAGE
+
+          echo "Pulling new Docker images..."
 
           docker compose --env-file .env pull backend frontend
 
-          # Update only application containers.
-          # MySQL is not recreated or removed.
+          # ----------------------------------
+          # DEPLOY NEW APPLICATION VERSIONS
+          # ----------------------------------
 
-          docker compose --env-file .env up -d --no-deps backend frontend
+          echo "Deploying backend and frontend..."
 
-          # Application health checks.
+          docker compose --env-file .env up \
+            -d --no-build --no-deps backend frontend
+
+          # ----------------------------------
+          # APPLICATION HEALTH CHECKS
+          # ----------------------------------
 
           HEALTHY=0
 
@@ -245,20 +292,44 @@ jobs:
 
             fi
 
-            echo "Waiting for application... attempt $attempt"
+            echo "Waiting for application: attempt $attempt"
 
             sleep 5
 
           done
 
           if [ "$HEALTHY" -ne 1 ]; then
+
             echo "Application health checks failed."
+
             false
+
           fi
+
+          # ----------------------------------
+          # VERIFY MYSQL
+          # ----------------------------------
+
+          MYSQL_STATUS=$(docker inspect \
+            --format '{{.State.Running}}' kvr-mysql)
+
+          if [ "$MYSQL_STATUS" != "true" ]; then
+
+            echo "MySQL container is not running."
+
+            false
+
+          fi
+
+          # ----------------------------------
+          # DEPLOYMENT SUCCESSFUL
+          # ----------------------------------
 
           trap - ERR
 
-          echo "Deployment successful."
+          echo "======================================"
+          echo "KVR KIDS CAMPUS DEPLOYMENT SUCCESSFUL"
+          echo "======================================"
 
           docker compose --env-file .env ps
 
