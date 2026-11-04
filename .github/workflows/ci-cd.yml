@@ -30,6 +30,30 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Temporary MySQL database for CI testing
+    services:
+      mysql:
+        image: mysql:8.0
+
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-password
+          MYSQL_DATABASE: kvr_school
+
+        ports:
+          - 3306:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-root-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    # Database connection for Spring Boot tests
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/kvr_school?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ci-root-password
+
     steps:
 
       - name: Checkout GitHub Repository
