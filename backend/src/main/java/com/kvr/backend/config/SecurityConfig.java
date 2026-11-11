@@ -112,6 +112,11 @@ public class SecurityConfig {
                     "/api/admissions/**"
                 ).permitAll()
 
+// -------------------------------------------------
+// ACTUATOR HEALTH CHECK
+// -------------------------------------------------
+
+.requestMatchers("/actuator/health").permitAll()
 
                 // -------------------------------------------------
                 // OTHER PUBLIC APIs

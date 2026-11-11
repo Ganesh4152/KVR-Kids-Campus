@@ -27,10 +27,8 @@ jobs:
   build-and-test:
 
     name: Build and Test Application
-
     runs-on: ubuntu-latest
 
-    # Temporary MySQL database for CI testing
     services:
       mysql:
         image: mysql:8.0
@@ -48,7 +46,6 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
-    # Database connection for Spring Boot tests
     env:
       SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/kvr_school?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
@@ -95,7 +92,6 @@ jobs:
   docker-build-push:
 
     name: Build and Push Docker Images
-
     runs-on: ubuntu-latest
 
     needs: build-and-test
@@ -146,7 +142,6 @@ jobs:
   deploy-to-ec2:
 
     name: Deploy Application to AWS EC2
-
     runs-on: ubuntu-latest
 
     needs: docker-build-push
@@ -158,6 +153,7 @@ jobs:
       # --------------------------------------
 
       - name: Configure SSH
+
         env:
           EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
@@ -179,6 +175,7 @@ jobs:
       # --------------------------------------
 
       - name: Deploy Application
+
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -214,6 +211,25 @@ jobs:
 
           docker compose --env-file .env config -q
 
+
+          # ----------------------------------
+          # PRE-DEPLOYMENT MYSQL HEALTH CHECK
+          # ----------------------------------
+
+          MYSQL_STATUS=$(docker inspect \
+            --format '{{.State.Health.Status}}' kvr-mysql)
+
+          if [ "$MYSQL_STATUS" != "healthy" ]; then
+
+            echo "ERROR: MySQL is not healthy. Deployment cancelled."
+
+            exit 1
+
+          fi
+
+          echo "Pre-deployment MySQL health check passed."
+
+
           # ----------------------------------
           # SAVE PREVIOUS APPLICATION IMAGES
           # ----------------------------------
@@ -233,6 +249,7 @@ jobs:
           docker tag "$OLD_FRONTEND_ID" "$OLD_FRONTEND_IMAGE"
 
           echo "Previous application images saved."
+
 
           # ----------------------------------
           # ROLLBACK FUNCTION
@@ -256,16 +273,40 @@ jobs:
             docker compose --env-file .env up \
               -d --no-build --no-deps backend frontend || true
 
-            sleep 15
+            echo "Waiting for rollback health checks..."
 
-            if curl -fsS http://localhost/ >/dev/null && \
-               curl -fsS http://localhost/api/students >/dev/null; then
+            ROLLBACK_HEALTHY=0
 
-              echo "Rollback health checks passed."
+            for attempt in $(seq 1 30); do
 
-            else
+              BACKEND_STATUS=$(docker inspect \
+                --format '{{.State.Health.Status}}' kvr-backend 2>/dev/null || echo "missing")
+
+              if [ "$BACKEND_STATUS" = "healthy" ] && \
+                 curl -fsS http://localhost/ >/dev/null; then
+
+                ROLLBACK_HEALTHY=1
+
+                echo "Rollback health checks passed."
+
+                break
+
+              fi
+
+              echo "Rollback attempt: $attempt"
+              echo "Backend health: $BACKEND_STATUS"
+
+              sleep 5
+
+            done
+
+            if [ "$ROLLBACK_HEALTHY" -ne 1 ]; then
 
               echo "WARNING: Rollback health checks failed."
+
+              docker compose --env-file .env ps
+
+              docker logs --tail 100 kvr-backend || true
 
             fi
 
@@ -275,6 +316,7 @@ jobs:
           }
 
           trap rollback ERR
+
 
           # ----------------------------------
           # PULL NEW DOCKER IMAGES
@@ -288,6 +330,7 @@ jobs:
 
           docker compose --env-file .env pull backend frontend
 
+
           # ----------------------------------
           # DEPLOY NEW APPLICATION VERSIONS
           # ----------------------------------
@@ -297,26 +340,34 @@ jobs:
           docker compose --env-file .env up \
             -d --no-build --no-deps backend frontend
 
+
           # ----------------------------------
           # APPLICATION HEALTH CHECKS
           # ----------------------------------
+
+          echo "Waiting for application health checks..."
 
           HEALTHY=0
 
           for attempt in $(seq 1 30); do
 
-            if curl -fsS http://localhost/ >/dev/null && \
-               curl -fsS http://localhost/api/students >/dev/null; then
+            BACKEND_STATUS=$(docker inspect \
+              --format '{{.State.Health.Status}}' kvr-backend 2>/dev/null || echo "missing")
+
+            if [ "$BACKEND_STATUS" = "healthy" ] && \
+               curl -fsS http://localhost/ >/dev/null; then
 
               HEALTHY=1
 
-              echo "Application health checks passed."
+              echo "Backend and frontend health checks passed."
 
               break
 
             fi
 
             echo "Waiting for application: attempt $attempt"
+
+            echo "Backend health status: $BACKEND_STATUS"
 
             sleep 5
 
@@ -326,24 +377,32 @@ jobs:
 
             echo "Application health checks failed."
 
+            docker compose --env-file .env ps
+
+            docker logs --tail 100 kvr-backend || true
+
             false
 
           fi
 
+
           # ----------------------------------
-          # VERIFY MYSQL
+          # VERIFY MYSQL HEALTH
           # ----------------------------------
 
           MYSQL_STATUS=$(docker inspect \
-            --format '{{.State.Running}}' kvr-mysql)
+            --format '{{.State.Health.Status}}' kvr-mysql)
 
-          if [ "$MYSQL_STATUS" != "true" ]; then
+          if [ "$MYSQL_STATUS" != "healthy" ]; then
 
-            echo "MySQL container is not running."
+            echo "MySQL container is not healthy."
 
             false
 
           fi
+
+          echo "MySQL health check passed."
+
 
           # ----------------------------------
           # DEPLOYMENT SUCCESSFUL

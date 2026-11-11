@@ -36,6 +36,11 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
+# Install curl for Docker health checks
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy the generated Spring Boot JAR
 COPY --from=build /app/target/*.jar app.jar
 
